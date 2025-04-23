@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { integer, pgTable, text, timestamp, varchar } from "drizzle-orm/pg-core";
+import { integer, jsonb, pgTable, text, timestamp, varchar } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -21,12 +21,22 @@ export const presentations = pgTable("presentations", {
 });
 
 export const prompts = pgTable("prompts", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  userId: integer('user_id').references(() => users.id, { onDelete: 'cascade'}).notNull(),
-  presentationId: integer('presentation_id').references(() => presentations.id).notNull(),
-  prompt: text('prompt').notNull(),
-  createdAT: timestamp("created_at").notNull().defaultNow(),
-  updatedAT: timestamp("updated_at").notNull().$onUpdate(() => new Date()),
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  userId: integer("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  presentationId: integer("presentation_id")
+    .references(() => presentations.id)
+    .notNull(),
+  parentPromptId: integer("parent_prompt_id"),
+  prompt: text("prompt").notNull(),
+  response: jsonb("response"), // incluye file URL, resumen, preview URL
+  model: varchar("model", { length: 50 }), // ej. "gpt-4"
+  tokensUsed: integer("tokens_used"),
+  type: varchar("type", { length: 30 }), // ej. "rewrite", "tone-change", "audience-adapt"
+  accumulatedSummary: text("accumulated_summary"), // resumen encadenado de iteraciones
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().$onUpdate(() => new Date()),
 });
 
 /* Relations */
