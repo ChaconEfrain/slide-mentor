@@ -54,13 +54,13 @@ export async function POST(req: Request) {
   console.log(evt)
 
   //Create user if doesn't exist
-  if (evt.type === 'user.created') {
-    await db.insert(users).values({
-      firstName: evt.data.first_name as string,
-      lastName: evt.data.last_name ?? '',
-      email: evt.data.email_addresses[0].email_address,
-    });
-  }
+  // if (evt.type === 'user.created') {
+  //   await db.insert(users).values({
+  //     firstName: evt.data.first_name as string,
+  //     lastName: evt.data.last_name ?? '',
+  //     email: evt.data.email_addresses[0].email_address,
+  //   });
+  // }
 
   // Return a response to acknowledge receipt of the event
   return new Response("", { status: 200 });

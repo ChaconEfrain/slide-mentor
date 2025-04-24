@@ -3,11 +3,12 @@ import { integer, jsonb, pgTable, text, timestamp, varchar } from "drizzle-orm/p
 
 export const users = pgTable("users", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  clerkId: varchar('clerk_id', { length: 255 }).notNull().unique(),
   firstName: varchar('first_name', { length: 255 }).notNull(),
   lastName: varchar('last_name', { length: 255 }).notNull(),
   email: varchar('email', { length: 255 }).notNull().unique(),
   createdAT: timestamp("created_at").notNull().defaultNow(),
-  updatedAT: timestamp("updated_at").notNull().$onUpdate(() => new Date()),
+  updatedAT: timestamp("updated_at").$onUpdate(() => new Date()),
 });
 
 export const presentations = pgTable("presentations", {
