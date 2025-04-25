@@ -10,7 +10,7 @@ import {
 } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
-  id: integer("id").primaryKey(),
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   clerkId: varchar("clerk_id", { length: 255 }).notNull().unique(),
   firstName: varchar("first_name", { length: 255 }).notNull(),
   lastName: varchar("last_name", { length: 255 }).notNull(),
@@ -22,11 +22,12 @@ export const users = pgTable("users", {
 export const presentations = pgTable(
   "presentations",
   {
-    id: integer("id").primaryKey(),
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     userId: integer("user_id")
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
     title: varchar("title", { length: 255 }).notNull(),
+    fileUrl: varchar("file_url", { length: 512 }).notNull(),
     createdAT: timestamp("created_at").notNull().defaultNow(),
     updatedAT: timestamp("updated_at").$onUpdate(() => new Date()),
   },
@@ -39,7 +40,7 @@ export const presentations = pgTable(
 export const presentationVersions = pgTable(
   "presentation_versions",
   {
-    id: integer("id").primaryKey(),
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     presentationId: integer("presentation_id")
       .references(() => presentations.id, { onDelete: "cascade" })
       .notNull(),
@@ -58,7 +59,7 @@ export const presentationVersions = pgTable(
 export const prompts = pgTable(
   "prompts",
   {
-    id: integer("id").primaryKey(),
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     userId: integer("user_id")
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),

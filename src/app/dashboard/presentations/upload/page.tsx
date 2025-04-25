@@ -1,41 +1,55 @@
 "use client"
 
-import type React from "react"
-
-import { useRef, useState } from "react"
-import { FileUp } from "lucide-react"
-
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import type React from "react";
+import { useRef, useState } from "react";
+import { FileUp } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import SubmitButton from "@/components/submit-button";
+import {} from "@uploadthing/react";
+import { savePresentationAction } from "@/actions/file-actions";
+import { toast } from "sonner";
 
 export default function UploadPresentation() {
-  const [isDragging, setIsDragging] = useState(false)
-  const [file, setFile] = useState<File | null>(null)
-  const fileInputRef = useRef<HTMLInputElement | null>(null)
+  const [isDragging, setIsDragging] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragging(true)
-  }
+    e.preventDefault();
+    setIsDragging(true);
+  };
 
   const handleDragLeave = () => {
-    setIsDragging(false)
-  }
+    setIsDragging(false);
+  };
 
   const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragging(false)
+    e.preventDefault();
+    setIsDragging(false);
 
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      setFile(e.dataTransfer.files[0])
+      setFile(e.dataTransfer.files[0]);
     }
-  }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      setFile(e.target.files[0])
+      setFile(e.target.files[0]);
     }
-  }
+  };
+
+  const saveFile = async () => {
+    if (!file) return;
+
+    const result = await savePresentationAction({ file });
+
+    if (result?.error) {
+      toast.error(result.error);
+    } else {
+      toast.success(result?.success);
+    }
+  };
 
   return (
     <section className="p-4">
@@ -47,7 +61,7 @@ export default function UploadPresentation() {
             isDragging
               ? "border-primary bg-primary/10"
               : "border-muted-foreground/25",
-            "transition-colors duration-200",
+            "transition-colors duration-200"
           )}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
@@ -59,7 +73,9 @@ export default function UploadPresentation() {
             </div>
             <div>
               <h3 className="font-medium text-lg">Drag and drop here</h3>
-              <p className="text-muted-foreground mt-1">or click to select a file</p>
+              <p className="text-muted-foreground mt-1">
+                or click to select a file
+              </p>
             </div>
             <input
               ref={fileInputRef}
@@ -78,29 +94,38 @@ export default function UploadPresentation() {
                 Select file
               </Button>
             </label>
-            <p className="text-xs text-muted-foreground">Supported formats: PPT, PPTX, PDF, KEY, ODP</p>
+            <p className="text-xs text-muted-foreground">
+              Supported formats: PPT, PPTX, PDF, KEY, ODP
+            </p>
           </div>
         </div>
 
-      {file && (
-        <div className="bg-muted p-4 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="size-10 rounded-md bg-primary flex items-center justify-center text-white">
-                <FileUp className="size-5" />
+        {file && (
+          <div className="bg-muted p-4 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="size-10 rounded-md bg-primary flex items-center justify-center text-white">
+                  <FileUp className="size-5" />
+                </div>
+                <div>
+                  <p className="font-medium">{file.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {(file.size / 1024 / 1024).toFixed(2)} MB
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="font-medium">{file.name}</p>
-                <p className="text-xs text-muted-foreground">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
-              </div>
+              <form action={saveFile}>
+                <SubmitButton
+                  type="submit"
+                  loadingText="Uploading..."
+                  text="Upload and enhance"
+                  variant="default"
+                />
+              </form>
             </div>
-            <Button>
-              Subir y Mejorar
-            </Button>
           </div>
-        </div>
-      )}
+        )}
       </div>
     </section>
-  )
+  );
 }
