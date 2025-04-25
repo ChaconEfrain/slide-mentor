@@ -2,13 +2,13 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function DashboardLayout({children}: {children: React.ReactNode}) {
-    return  (
-        <SidebarProvider>
-            <AppSidebar />
-            <main className="font-outfit">
-                <SidebarTrigger />
-                {children}
-            </main>
-        </SidebarProvider>
-    )
+    return (
+      <SidebarProvider>
+        <AppSidebar />
+        <main className="font-outfit w-full">
+          <SidebarTrigger />
+          {children}
+        </main>
+      </SidebarProvider>
+    );
 }
