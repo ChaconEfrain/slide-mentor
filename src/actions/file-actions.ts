@@ -5,19 +5,22 @@ import { savePresentation } from "@/lib/drizzle/file"
 import { auth } from "@clerk/nextjs/server"
 
 export async function savePresentationAction({file}: {file: File}) {
-  // const { userId: clerkId } = await auth();
+  const { userId: clerkId } = await auth();
 
   try {
-    // if (!clerkId) throw new Error("Unauthorized");
+    if (!clerkId) throw new Error("Unauthorized");
     if (!file) throw new Error("file is required");
-  
-    const { data } = await utapi.uploadFiles(file)
+
+    const { data } = await utapi.uploadFiles(file);
     const fileUrl = data?.ufsUrl;
     if (!fileUrl) throw new Error("Failed to upload file");
-  
-    await savePresentation({title: file.name, fileUrl});
 
-    return { success: 'File uploaded successfully' };
+    const presentation = await savePresentation({ title: file.name, fileUrl });
+
+    return {
+      success: "File uploaded successfully",
+      presentationId: presentation.id,
+    };
   } catch (error) {
     console.error("Error uploading file:", error);
     if (error instanceof Error) {

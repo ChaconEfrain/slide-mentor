@@ -4,21 +4,24 @@ import { auth } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
 
 export async function savePresentation({title, fileUrl}: {title: string, fileUrl: string}) {
-  // const { userId: clerkId } = await auth()
+  const { userId: clerkId } = await auth();
 
-  // if (!clerkId) throw new Error("Unauthorized");
+  if (!clerkId) throw new Error("Unauthorized");
 
   try {
-    const { id: userId } = await db.query.users.findFirst({
-      where: eq(users.clerkId, 'user_2wEvbHXKzelTtpw8iIZYPO00S5T'),
-    }) as User
-  
-    const [presentation] = await db.insert(presentations).values({
-      userId,
-      title,
-      fileUrl
-    }).returning();
-  
+    const { id: userId } = (await db.query.users.findFirst({
+      where: eq(users.clerkId, clerkId),
+    })) as User;
+
+    const [presentation] = await db
+      .insert(presentations)
+      .values({
+        userId,
+        title,
+        fileUrl,
+      })
+      .returning();
+
     return presentation;
   } catch (error) {
     console.error("Error saving presentation:", error);
