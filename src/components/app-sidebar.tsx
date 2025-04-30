@@ -43,8 +43,8 @@ const items = [
 
 export function AppSidebar() {
   return (
-    <Sidebar collapsible="icon" className="font-outfit antialiased">
-      <SidebarContent>
+    <Sidebar className="font-outfit antialiased static border-none w-52">
+      <SidebarContent className="bg-white w-52">
         <SidebarGroup>
           <SidebarGroupLabel className="text-2xl">
             <span>Slide</span>
