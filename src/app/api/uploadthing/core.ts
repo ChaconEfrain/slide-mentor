@@ -8,28 +8,24 @@ const f = createUploadthing();
 // FileRouter for your app, can contain multiple FileRoutes
 export const ourFileRouter = {
   presentationUploader: f({
-    'application/vnd.ms-powerpoint': {
-      maxFileSize: "8MB",
-      maxFileCount: 1,
-    },
-    'application/vnd.openxmlformats-officedocument.presentationml.presentation': {
-      maxFileSize: "8MB",
-      maxFileCount: 1,
-    },
-    'application/pdf': {
+    "application/pdf": {
       maxFileSize: "8MB",
       maxFileCount: 1,
     },
   })
     .middleware(async () => {
-      const { userId } = await auth()
+      const { userId } = await auth();
 
       if (!userId) throw new UploadThingError("Unauthorized");
 
       return { userId };
     })
-    .onUploadComplete(async ({ metadata, file }) => {
-      console.log("Upload complete for userId:", metadata.userId);
+    .onUploadError(({ error }) => {
+      console.error("Upload error", error);
+      // Handle the error as needed
+    })
+    .onUploadComplete(({ metadata, file }) => {
+      console.log("Upload complete");
 
       console.log("file url", file.ufsUrl);
 
