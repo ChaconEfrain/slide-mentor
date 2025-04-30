@@ -6,9 +6,9 @@ import { FileUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import SubmitButton from "@/components/submit-button";
-import {} from "@uploadthing/react";
-import { savePresentationAction } from "@/actions/file-actions";
+import { savePresentationAction } from "@/actions/presentation-actions";
 import { toast } from "sonner";
+import { redirect } from "next/navigation";
 
 export default function UploadPresentation() {
   const [isDragging, setIsDragging] = useState(false);
@@ -48,6 +48,7 @@ export default function UploadPresentation() {
       toast.error(result.error);
     } else {
       toast.success(result?.success);
+      redirect(`/dashboard/presentations/${result?.presentationId}/enhance`);
     }
   };
 
@@ -82,7 +83,7 @@ export default function UploadPresentation() {
               type="file"
               id="file-upload"
               className="hidden"
-              accept=".ppt,.pptx,.pdf,.key,.odp"
+              accept=".pdf"
               onChange={handleFileChange}
             />
             <label htmlFor="file-upload">
@@ -94,8 +95,9 @@ export default function UploadPresentation() {
                 Select file
               </Button>
             </label>
-            <p className="text-xs text-muted-foreground">
-              Supported formats: PPT, PPTX, PDF, KEY, ODP
+            <p className="text-xs text-muted-foreground max-w-60">
+              Make sure to upload your presentation in a PDF format for best
+              results.
             </p>
           </div>
         </div>
