@@ -1,16 +1,17 @@
 import { db } from "@/db";
 import { users } from "@/db/schema";
 import type { UserWebhookEvent, WebhookEvent } from "@clerk/nextjs/server";
+import { eq } from "drizzle-orm";
 import { IncomingHttpHeaders } from "http";
 import { headers } from "next/headers";
 import { Webhook, WebhookRequiredHeaders } from "svix";
 
 export async function POST(req: Request) {
-  const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET!;
+  const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SIGNING_SECRET!;
 
   if (!WEBHOOK_SECRET) {
     throw new Error(
-      "Please add WEBHOOK_SECRET from Clerk Dashboard to .env or .env.local",
+      "Please add WEBHOOK_SECRET from Clerk Dashboard to .env or .env.local"
     );
   }
 
@@ -30,7 +31,6 @@ export async function POST(req: Request) {
   // Get the body
   const payload = await req.json();
   const body = JSON.stringify(payload);
-  console.log(body)
 
   // Create a new Svix instance with your secret.
   const wh = new Webhook(WEBHOOK_SECRET);
@@ -51,16 +51,24 @@ export async function POST(req: Request) {
     });
   }
 
-  console.log(evt)
-
   //Create user if doesn't exist
-  // if (evt.type === 'user.created') {
-  //   await db.insert(users).values({
-  //     firstName: evt.data.first_name as string,
-  //     lastName: evt.data.last_name ?? '',
-  //     email: evt.data.email_addresses[0].email_address,
-  //   });
-  // }
+  if (evt.type === "user.created") {
+    //insert user if not exists
+    const existingUser = await db.query.users.findFirst({
+      where: eq(users.email, evt.data.email_addresses[0].email_address),
+    });
+
+    if (existingUser) {
+      return new Response("User already exists", { status: 200 });
+    }
+
+    await db.insert(users).values({
+      firstName: evt.data.first_name as string,
+      lastName: evt.data.last_name ?? "",
+      email: evt.data.email_addresses[0].email_address,
+      clerkId: evt.data.id,
+    });
+  }
 
   // Return a response to acknowledge receipt of the event
   return new Response("", { status: 200 });
